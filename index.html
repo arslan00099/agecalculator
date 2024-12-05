@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        input {
+            width: 90%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+        .error {
+            color: red;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Age Calculator</h1>
+        <input type="date" id="birthDate" />
+        <button onclick="calculateAge()">Calculate Age</button>
+        <div class="result" id="result"></div>
+        <div class="error" id="error"></div>
+    </div>
+
+    <script>
+        const calculateAge = async () => {
+            // Get the input value
+            const birthDate = document.getElementById('birthDate').value;
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+
+            // Clear previous results or errors
+            resultDiv.textContent = '';
+            errorDiv.textContent = '';
+
+            if (!birthDate) {
+                errorDiv.textContent = 'Please select a birth date!';
+                return;
+            }
+
+            try {
+                // Send a POST request to the backend
+                const response = await fetch('http://localhost:3000/calculate-age', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ birthDate })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Display the result
+                    resultDiv.innerHTML = `You are <strong>${data.years} years</strong>, <strong>${data.months} months</strong>, and <strong>${data.days} days</strong> old.`;
+                } else {
+                    // Display error from backend
+                    errorDiv.textContent = data.error || 'An error occurred!';
+                }
+            } catch (error) {
+                // Display network or other errors
+                errorDiv.textContent = 'Failed to connect to the server. Please try again.';
+            }
+        };
+    </script>
+</body>
+</html>
